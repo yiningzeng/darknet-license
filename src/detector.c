@@ -1263,6 +1263,7 @@ void calc_anchors(char *datacfg, int num_of_clusters, int width, int height, int
 #endif // OPENCV
     }
     free(rel_width_height_array);
+    //此处去掉getchar()直接退出
 }
 
 
