@@ -51,3 +51,7 @@ src/version.h
 lib/
 share/
 include/darknet/
+
+\.idea/
+
+cmake-build-debug/

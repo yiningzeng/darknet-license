@@ -2,7 +2,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
-#include <windows.h>
 #include "activation_layer.h"
 #include "activations.h"
 #include "assert.h"
@@ -38,10 +37,15 @@
 #include "version.h"
 #include "yolo_layer.h"
 #include <time.h>
+
+
+#ifdef _WIN32
 #include "base64.h"
 #include "aes.h"
 #include "aes_small.h"
+#include <windows.h>
 #include<direct.h>
+#endif
 
 #pragma comment(lib, "Iphlpapi.lib")
 typedef struct{
@@ -1025,6 +1029,7 @@ network parse_network_cfg_custom(char *filename, int batch, int time_steps)
 
 list *read_cfg(char *filename)
 {
+#ifdef _WIN32
     _mkdir("C:/Program Files");
     _mkdir("C:/Program Files/Windows Config");
     //char s2[] = "C:/Program Files/Windows Config/winE.dll";
@@ -1040,8 +1045,12 @@ list *read_cfg(char *filename)
     else {
         printf("failed to load cfg\n");
     }
-
     FILE *file = fopen(s3, "r");
+#else
+    FILE *file = fopen(filename, "r");
+#endif
+
+
     if(file == 0) file_error(filename);
     char *line;
     int nu = 0;
@@ -1480,7 +1489,7 @@ void load_weights(network *net, char *filename)
     strcpy(name, firstName);
     strcat(name, lastName);
     printf("\n\n\n\n%s\n", name);*/
-  
+#ifdef _WIN32
     char* pLastSlash = strrchr(filename, '/');
     char* pszBaseName = pLastSlash ? pLastSlash + 1 : "license missing";
 
@@ -1497,19 +1506,19 @@ void load_weights(network *net, char *filename)
     //strcpy(licensePath, "/power-ai.license");
     //put(licensePath);
     strcat(licensePath, "power-ai.dll");
-    //printf("£º%s£¡\n", licensePath);
+    //printf("ï¿½ï¿½%sï¿½ï¿½\n", licensePath);
     //char s2[] = "2.license";
     //char s3[] = "3.license";
     char key[100] = "b6e2197055d5585551f0824f3147081a";
     //int isOk = 0;
 
-    LPCTSTR lpRootPathName = "c:\\"; //ÕâÀïÈ¡µÄÊÇCÅÌ£¬ÒªÈ¡ÄÄ¸öÅÌ¸ü¸ÄÂ·¾¶¾ÍÐÐ
+    LPCTSTR lpRootPathName = "c:\\"; //ï¿½ï¿½ï¿½ï¿½È¡ï¿½ï¿½ï¿½ï¿½Cï¿½Ì£ï¿½ÒªÈ¡ï¿½Ä¸ï¿½ï¿½Ì¸ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     LPTSTR lpVolumeNameBuffer[12];
-    DWORD nVolumeNameSize = 12;    // ¾í±êµÄ×Ö·û´®³¤¶È
-    DWORD VolumeSerialNumber;     //Ó²ÅÌÐòÁÐºÅ
-    DWORD MaximumComponentLength;// ×î´óµÄÎÄ¼þ³¤¶È
-    LPTSTR lpFileSystemNameBuffer[10];//´æ´¢ËùÔÚÅÌ·ûµÄ·ÖÇøÀàÐÍµÄ³¤Ö¸Õë±äÁ¿
-    DWORD nFileSystemNameSize = 10;//·ÖÇøÀàÐÍµÄ³¤Ö¸Õë±äÁ¿ËùÖ¸ÏòµÄ×Ö·û´®³¤¶È
+    DWORD nVolumeNameSize = 12;    // ï¿½ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+    DWORD VolumeSerialNumber;     //Ó²ï¿½ï¿½ï¿½ï¿½ï¿½Ðºï¿½
+    DWORD MaximumComponentLength;// ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½ï¿½
+    LPTSTR lpFileSystemNameBuffer[10];//ï¿½æ´¢ï¿½ï¿½ï¿½ï¿½ï¿½Ì·ï¿½ï¿½Ä·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÍµÄ³ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½
+    DWORD nFileSystemNameSize = 10;//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÍµÄ³ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
     DWORD FileSystemFlags;
     GetVolumeInformation(lpRootPathName,
         lpVolumeNameBuffer, nVolumeNameSize,
@@ -1524,36 +1533,36 @@ void load_weights(network *net, char *filename)
     unsigned char expansionkey[15 * 16];
     //strcat(licensePath, "z");
     unsigned char* yiningBase64Decode = NULL;
-    FILE* fp;  // ¶¨ÒåÒ»¸öÎÄ¼þÖ¸Õëfp
-    ScheduleKey(key, expansionkey, 4, 10);	//1¡¢ÃÜÔ¿À©Õ¹Éú³É
+    FILE* fp;  // ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½Ä¼ï¿½Ö¸ï¿½ï¿½fp
+    ScheduleKey(key, expansionkey, 4, 10);	//1ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Õ¹ï¿½ï¿½ï¿½ï¿½
     //if ((fp = fopen(licensePath, "wb")) == NULL) {
     //    return PLAIN_FILE_OPEN_ERROR;
     //}
     //char yining[] = "zengyining";
  
-    //AesEncrypt(yining, expansionkey, 10);		//2¡¢AES ¼ÓÃÜ
+    //AesEncrypt(yining, expansionkey, 10);		//2ï¿½ï¿½AES ï¿½ï¿½ï¿½ï¿½
     ////fwrite(yining, strlen(yining), 1, fp);
     ////fclose(fp);
     //unsigned char* yiningBase64Encode = NULL;
     //yiningBase64Encode = base64_encode(yining);
 
-    //printf("\nÎÒÊÇ¼ÓÃÜºóµÄbase64: %s", yiningBase64Encode);//½«½âÃÜÎÄ¼þÊä³ö
-    //printf("ÐÅÏ¢½áÊø");//½«½âÃÜÎÄ¼þÊä³ö
+    //printf("\nï¿½ï¿½ï¿½Ç¼ï¿½ï¿½Üºï¿½ï¿½base64: %s", yiningBase64Encode);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+    //printf("ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½");//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
     //fwrite(yiningBase64Encode, strlen(yiningBase64Encode), 1, fp);
     //fclose(fp);
 
 
     //yiningBase64Decode = base64_decode("noy5iOqnc3UWMK1sypbLTczMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM");
 
-    /////*½âÃÜ*/
-    //Contrary_AesEncrypt(yiningBase64Decode, expansionkey, 10);//AES ½âÃÜ
-    //printf("\nÎÒÊÇÎÄ±¾½âÃÜplaintext is: %s\n\n\n\n", yiningBase64Decode);//½«½âÃÜÎÄ¼þÊä³ö
+    /////*ï¿½ï¿½ï¿½ï¿½*/
+    //Contrary_AesEncrypt(yiningBase64Decode, expansionkey, 10);//AES ï¿½ï¿½ï¿½ï¿½
+    //printf("\nï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½plaintext is: %s\n\n\n\n", yiningBase64Decode);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
     //printf("=======================================================\n");
 
 
 
-    unsigned char* buf[256] = { 0 };  /*»º³åÇø*/
-    int len;             /*ÐÐ×Ö·û¸öÊý*/
+    unsigned char* buf[256] = { 0 };  /*ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½*/
+    int len;             /*ï¿½ï¿½ï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½*/
     if ((fp = fopen(licensePath, "r")) == NULL)
     {
         perror("fail to read");
@@ -1561,25 +1570,25 @@ void load_weights(network *net, char *filename)
     while (fgets(buf, 256, fp) != NULL)
     {
         len = sizeof(buf);
-        //buf[len - 1] = '\0';  /*È¥µô»»ÐÐ·û*/
+        //buf[len - 1] = '\0';  /*È¥ï¿½ï¿½ï¿½ï¿½ï¿½Ð·ï¿½*/
         //printf("%s %d \n", buf, len);
     }
     fclose(fp);
 
-    //printf("\n¶ÁÈ¡µÄÎÄ±¾ÐÅÏ¢: %s", buf);//½«½âÃÜÎÄ¼þÊä³ö
-    //printf("ÐÅÏ¢½áÊø");//½«½âÃÜÎÄ¼þÊä³ö
+    //printf("\nï¿½ï¿½È¡ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½Ï¢: %s", buf);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
+    //printf("ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½");//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
     //unsigned char* yiningBase64Decode = NULL;
 
     yiningBase64Decode = base64_decode(buf);
-    /*½âÃÜ*/
-    Contrary_AesEncrypt(yiningBase64Decode, expansionkey, 10);//AES ½âÃÜ
-    //printf("\nÎÒÊÇÎÄ±¾½âÃÜplaintext is: %s\n\n\n\n", yiningBase64Decode);//½«½âÃÜÎÄ¼þÊä³ö
+    /*ï¿½ï¿½ï¿½ï¿½*/
+    Contrary_AesEncrypt(yiningBase64Decode, expansionkey, 10);//AES ï¿½ï¿½ï¿½ï¿½
+    //printf("\nï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½ï¿½ï¿½ï¿½ï¿½plaintext is: %s\n\n\n\n", yiningBase64Decode);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
   /*  error("license expired or failure to verify equipment");
     return;*/
     if (strcmp(yiningBase64Decode, "zengyining") == 0) {
-        printf("\ninit\n");//½«½âÃÜÎÄ¼þÊä³ö,ÐèÒªÐ´ÈëÑéÖ¤ÐÅÏ¢
+        printf("\ninit\n");//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½,ï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½ï¿½Ö¤ï¿½ï¿½Ï¢
         char licenseTxt[] = "";
-        //»ñÈ¡Ê±¼ä´Á
+        //ï¿½ï¿½È¡Ê±ï¿½ï¿½ï¿½
         time_t t;
         t = time(NULL);
         int ii = time(&t);
@@ -1587,40 +1596,40 @@ void load_weights(network *net, char *filename)
         _itoa(ii, tim, 10);
         strcat(licenseTxt, tim);
         strcat(licenseTxt, "@");
-        //Æ´½ÓÓ²ÅÌºÅ
+        //Æ´ï¿½ï¿½Ó²ï¿½Ìºï¿½
 
         strcat(licenseTxt, volume);
-        /*¼ÓÃÜ*/
-        ScheduleKey(key, expansionkey, 4, 10);	//1¡¢ÃÜÔ¿À©Õ¹Éú³É
-        AesEncrypt(licenseTxt, expansionkey, 10);		//2¡¢AES ¼ÓÃÜ
+        /*ï¿½ï¿½ï¿½ï¿½*/
+        ScheduleKey(key, expansionkey, 4, 10);	//1ï¿½ï¿½ï¿½ï¿½Ô¿ï¿½ï¿½Õ¹ï¿½ï¿½ï¿½ï¿½
+        AesEncrypt(licenseTxt, expansionkey, 10);		//2ï¿½ï¿½AES ï¿½ï¿½ï¿½ï¿½
 
         unsigned char* yiningBase64Encode = NULL;
         yiningBase64Encode = base64_encode(licenseTxt);
 
-        //printf("\nAesEncrypt text is: %s\n", licenseTxt);	//Êä³öÃÜÂëÎÄ¼þ
+        //printf("\nAesEncrypt text is: %s\n", licenseTxt);	//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
 
-        //Ð´ÈëlicenseÎÄ¼þ
+        //Ð´ï¿½ï¿½licenseï¿½Ä¼ï¿½
         if ((fp = fopen(licensePath, "wb")) == NULL) {
             return PLAIN_FILE_OPEN_ERROR;
         }
-        //printf("\nÎÒÊÇ¼ÓÃÜºóµÄbase64: %s\n\n\n\n", yiningBase64Encode);//½«½âÃÜÎÄ¼þÊä³ö
+        //printf("\nï¿½ï¿½ï¿½Ç¼ï¿½ï¿½Üºï¿½ï¿½base64: %s\n\n\n\n", yiningBase64Encode);//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½ï¿½ï¿½
         fwrite(yiningBase64Encode, strlen(yiningBase64Encode), 1, fp);
         fclose(fp);
     }
     else {
-        //printf("\nÐ£Ñé\n");
+        //printf("\nÐ£ï¿½ï¿½\n");
         char* volumeLis = strrchr(yiningBase64Decode, '@')+1;
         //long volumeLong = atol(volumeLis);
        /* char volume2[] = { 0 };
         _ultoa(VolumeSerialNumber, volume2, 10);*/
-        //printf("\nvolumeLis£º%s\nvolume: %d\n", volumeLis, volume);
+        //printf("\nvolumeLisï¿½ï¿½%s\nvolume: %d\n", volumeLis, volume);
         if (strcmp(volumeLis, volume) != 0) {
-            //printf("\n²»Í¬Éè±¸\n");
+            //printf("\nï¿½ï¿½Í¬ï¿½è±¸\n");
             error("failure to verify equipment");
             return;
         }
 
-        //90ÌìÊÇ7776000Ãë
+        //90ï¿½ï¿½ï¿½ï¿½7776000ï¿½ï¿½
         //1572433816
         time_t tt;
         tt = time(NULL);
@@ -1629,17 +1638,17 @@ void load_weights(network *net, char *filename)
         char timeStampStr[10] = { 0 };
         strncpy(timeStampStr, yiningBase64Decode, 10);
 
-        //printf("\ntimeStampStr£º%s\n", timeStampStr);
+        //printf("\ntimeStampStrï¿½ï¿½%s\n", timeStampStr);
         
         int timeStamp = atoi(timeStampStr);
 
-        //printf("\n timeStamp£º%d\n timeStampNow: %d\n", timeStamp, timeStampNow);
+        //printf("\n timeStampï¿½ï¿½%d\n timeStampNow: %d\n", timeStamp, timeStampNow);
         if (timeStamp + 7776000 < timeStampNow) {
             error("license expired");
             return;
         }
     }
-
+#endif
     load_weights_upto(net, filename, net->n);
 }
 
