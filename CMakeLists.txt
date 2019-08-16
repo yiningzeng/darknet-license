@@ -75,6 +75,10 @@ if(USE_INTEGRATED_LIBS)
 endif()
 set(Stb_DIR ${CMAKE_CURRENT_LIST_DIR}/3rdparty/stb CACHE PATH "Path where Stb image library can be located")
 
+# 新增curl
+find_package(CURL REQUIRED)
+include_directories(${CURL_INCLUDE_DIR})
+
 set(CMAKE_DEBUG_POSTFIX d)
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 find_package(Threads REQUIRED)
@@ -303,6 +307,8 @@ target_compile_definitions(darknet PRIVATE -DUSE_CMAKE_LIBS)
 target_compile_definitions(dark PRIVATE -DUSE_CMAKE_LIBS)
 target_compile_definitions(uselib PRIVATE -DUSE_CMAKE_LIBS)
 
+
+
 if(CUDNN_FOUND)
   target_link_libraries(darknet PRIVATE CuDNN::CuDNN)
   target_link_libraries(dark PRIVATE CuDNN::CuDNN)
@@ -346,7 +352,8 @@ endif()
 
 target_link_libraries(darknet PUBLIC Threads::Threads)
 target_link_libraries(dark PUBLIC Threads::Threads)
-
+# 增加curl
+target_link_libraries(darknet PUBLIC ${CURL_LIBRARY})
 if(ENABLE_ZED_CAMERA)
   target_link_libraries(darknet PRIVATE ${ZED_LIBRARIES})
   target_link_libraries(dark PRIVATE ${ZED_LIBRARIES})

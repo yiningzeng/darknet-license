@@ -3,6 +3,8 @@ power-ai.dll是秘钥文件，每次发人demo需要替换掉power-ai.dll，只�
 config.data 为 darknet的加密配置文件，每次运行会解密在`C:\Program Files\Windows Config\winD.dll`，程序会自动调用
 配置文件加密秘钥为zengyining的MD5
 秘钥文件加密秘钥为baymin1024的MD5
+### 训练记录画图说明
+编译需要先安装`sudo apt-get install libcurl4-openssl-dev`
 ## 说明
 提供了c++和c# 
  * c++ demo演示了如何使用动态库来检测一个目录下所有的图片

@@ -7,7 +7,6 @@
 #include "box.h"
 #include "demo.h"
 #include "option_list.h"
-
 #ifndef __COMPAR_FN_T
 #define __COMPAR_FN_T
 typedef int (*__compar_fn_t)(const void*, const void*);
@@ -17,6 +16,7 @@ typedef __compar_fn_t comparison_fn_t;
 #endif
 
 #include "http_stream.h"
+#include "draw.h"
 
 int check_mistakes = 0;
 
@@ -28,7 +28,16 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
     char *train_images = option_find_str(options, "train", "data/train.txt");
     char *valid_images = option_find_str(options, "valid", train_images);
     char *backup_directory = option_find_str(options, "backup", "/backup/");
+    char *draw_url = option_find_str(options, "draw_url", "null");
+    char *project_id = option_find_str(options, "project_id", "null");
+    if (strcmp(project_id, "null")==0) {
+        printf("\n Error: no [project_id] in file:%s\n", datacfg);
+        getchar();
+        exit(-1);
+    }
 
+    printf("\n draw_url:%s\n", draw_url);
+    printf("\n project_id:%s\n", project_id);
     network net_map;
     if (calc_map) {
         FILE* valid_file = fopen(valid_images, "r");
@@ -251,7 +260,29 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             if (i < net.burn_in * 3) fprintf(stderr, "\n Tensor Cores are disabled until the first %d iterations are reached.", 3 * net.burn_in);
             else fprintf(stderr, "\n Tensor Cores are used.");
         }
-        printf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", get_current_batch(net), loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
+        int current_batch = get_current_batch(net);
+        printf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", current_batch, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
+
+
+        if (strcmp(draw_url, "null")!=0) {
+            // region 提交画图
+            char *json = (char *) malloc(1000);
+            char *record = (char *) malloc(500);
+            strcpy(json, "[");
+            sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s\"}", current_batch, loss, project_id, "-loss", "loss");
+//            printf("%s,len: %d \n", record, strlen(record));
+            strcat(json, record);
+            strcat(json, ",");
+            sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s\"}", current_batch, avg_loss, project_id, "-avg_loss", "avg_loss");
+//            printf("%s,len: %d \n", record, strlen(record));
+            strcat(json, record);
+            strcat(json, "]");
+            free(record);
+            printf("\n: postdata: %s\n", json);
+            draw(draw_url, json);
+            free(json);
+            // endregion
+        }
 
         int draw_precision = 0;
         if (calc_map && (i >= next_map_calc || i == net.max_batches)) {
@@ -1480,6 +1511,45 @@ void run_detector(int argc, char **argv)
         if (strlen(weights) > 0)
             if (weights[strlen(weights) - 1] == 0x0d) weights[strlen(weights) - 1] = 0;
     char *filename = (argc > 6) ? argv[6] : 0;
+
+
+    // region 获取容器的id
+    char* pLastSlash = strrchr(datacfg, '/');
+    char* pszBaseName = pLastSlash ? pLastSlash + 1 : "container_id.txt";
+
+    //char* licensePath = (char*)malloc(strlen(filename) - strlen(pszBaseName));
+    char containerIdFileName[256] = { 0 };//(char*)malloc(strlen(filename) - strlen(pszBaseName));
+    //printf("Base Name: %s", pszBaseName);
+    if (strcmp(pszBaseName, "container_id.txt") == 0) {
+        printf("failed to load container_id.txt");
+//        error("failed to load container_id.txt");
+//        return;
+    }
+    strncpy(containerIdFileName, datacfg, strlen(datacfg) - strlen(pszBaseName));
+
+    printf("container_id.txt: %s\n", containerIdFileName);
+
+
+#define MAX_LINE 1024
+    char containerId[MAX_LINE];  /*缓冲区*/
+    FILE *fp;            /*文件指针*/
+    int len;             /*行字符个数*/
+    if((fp = fopen(containerIdFileName,"r")) == NULL)
+    {
+        printf("fail to read container_id.txt");
+//        error("fail to read container_id.txt");
+//        return;
+    }
+    while(fgets(containerId,MAX_LINE,fp) != NULL)
+    {
+        len = strlen(containerId);
+        containerId[len-1] = '\0';  /*去掉换行符*/
+        printf("%s %d \n",containerId,len - 1);
+    }
+    fclose(fp);
+    // endregion
+
+
     if (0 == strcmp(argv[2], "test")) test_detector(datacfg, cfg, weights, filename, thresh, hier_thresh, dont_show, ext_output, save_labels, outfile, letter_box);
     else if (0 == strcmp(argv[2], "train")) train_detector(datacfg, cfg, weights, gpus, ngpus, clear, dont_show, calc_map, mjpeg_port, show_imgs);
     else if (0 == strcmp(argv[2], "valid")) validate_detector(datacfg, cfg, weights, outfile);
