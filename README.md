@@ -1,10 +1,15 @@
-﻿### 加密说明
+﻿# 基于AlexeyAB/darknet更改
+### 远程画图
+* 编译需要先安装`sudo apt-get install libcurl4-openssl-dev`
+* `voc.data`新增参数
+    * draw_url=http://192.168.31.75:18888/draw_chart
+    * project_id=项目名称
+### 加密说明
 power-ai.dll是秘钥文件，每次发人demo需要替换掉power-ai.dll，只要demo运行一次就会写入`power-ai.dll`90天的时间限制和硬件唯一标示，下次运行会判断
 config.data 为 darknet的加密配置文件，每次运行会解密在`C:\Program Files\Windows Config\winD.dll`，程序会自动调用
 配置文件加密秘钥为zengyining的MD5
 秘钥文件加密秘钥为baymin1024的MD5
-### 训练记录画图说明
-编译需要先安装`sudo apt-get install libcurl4-openssl-dev`
+
 ## 说明
 提供了c++和c# 
  * c++ demo演示了如何使用动态库来检测一个目录下所有的图片
