@@ -1,10 +1,9 @@
 #ifndef uint8_t
-#define uint8_t unsigned char
 #endif
-#define PLAIN_FILE_OPEN_ERROR -1 //Ã÷ÎÄ´ò¿ªÊ§°Ü
-#define KEY_FILE_OPEN_ERROR -2	//ÃÜÔ¿ÎÄ¼þ´ò¿ªÊ§°Ü
-#define CIPHER_FILE_OPEN_ERROR -3	//°µÎÄ´ò¿ªÊ§°Ü
-#define OK 1 //¼ÓÃÜ»òÕß½âÃÜ³É¹¦
+#define PLAIN_FILE_OPEN_ERROR -1 //ï¿½ï¿½ï¿½Ä´ï¿½Ê§ï¿½ï¿½
+#define KEY_FILE_OPEN_ERROR -2	//ï¿½ï¿½Ô¿ï¿½Ä¼ï¿½ï¿½ï¿½Ê§ï¿½ï¿½
+#define CIPHER_FILE_OPEN_ERROR -3	//ï¿½ï¿½ï¿½Ä´ï¿½Ê§ï¿½ï¿½
+#define OK 1 //ï¿½ï¿½ï¿½Ü»ï¿½ï¿½ß½ï¿½ï¿½Ü³É¹ï¿½
 typedef char ElemType;
 #ifdef __cplusplus
 extern "C" {

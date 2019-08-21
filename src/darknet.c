@@ -11,7 +11,7 @@
 #include "dark_cuda.h"
 #include "blas.h"
 #include "connected_layer.h"
-
+#include "config.h"
 
 extern void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *filename, int top);
 extern void run_voxel(int argc, char **argv);
@@ -472,6 +472,16 @@ int main(int argc, char **argv)
         run_super(argc, argv);
     } else if (0 == strcmp(argv[1], "detector")){
         run_detector(argc, argv);
+    } else if (0 == strcmp(argv[1], "config")){
+        if (argc < 3){
+            fprintf(stderr, "usage: %s %s [encrypt/decrypt] [cfg]\n", argv[0], argv[1]);
+            return -1;
+        }
+        if (0 == strcmp(argv[2], "encrypt")){
+            encryptConfig(argv[3]);
+        } else if (0 == strcmp(argv[2], "decrypt")){
+            decryptConfig(argv[3]);
+        }
     } else if (0 == strcmp(argv[1], "detect")){
         float thresh = find_float_arg(argc, argv, "-thresh", .24);
 		int ext_output = find_arg(argc, argv, "-ext_output");
