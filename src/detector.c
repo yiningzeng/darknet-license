@@ -6,6 +6,7 @@
 #include "parser.h"
 #include "box.h"
 #include "demo.h"
+#include <math.h>
 #include "option_list.h"
 #ifndef __COMPAR_FN_T
 #define __COMPAR_FN_T
@@ -161,7 +162,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         if (net.sequential_subdivisions) args.threads = net.sequential_subdivisions * ngpus;
         else args.threads = net.subdivisions * ngpus;
         args.mini_batch = net.batch / net.time_steps;
-        printf("\n Tracking! batch = %d, subdiv = %d, time_steps = %d, mini_batch = %d \n", net.batch, net.subdivisions, net.time_steps, args.mini_batch);
+        fprintf("\n Tracking! batch = %d, subdiv = %d, time_steps = %d, mini_batch = %d \n", net.batch, net.subdivisions, net.time_steps, args.mini_batch);
     }
     //printf(" imgs = %d \n", imgs);
 
@@ -205,7 +206,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         if (net.track) {
             net.sequential_subdivisions = get_current_seq_subdivisions(net);
             args.threads = net.sequential_subdivisions * ngpus;
-            printf(" sequential_subdivisions = %d, sequence = %d \n", net.sequential_subdivisions, get_sequence_value(net));
+            fprintf(" sequential_subdivisions = %d, sequence = %d \n", net.sequential_subdivisions, get_sequence_value(net));
         }
         load_thread = load_data(args);
 
@@ -252,7 +253,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         next_map_calc = fmax(next_map_calc, net.burn_in);
         next_map_calc = fmax(next_map_calc, 400);
         if (calc_map) {
-            printf("\n (next mAP calculation at %d iterations) ", next_map_calc);
+            fprintf("\n (next mAP calculation at %d iterations) ", next_map_calc);
             if (mean_average_precision > 0) printf("\n Last accuracy mAP@0.5 = %2.2f %%, best = %2.2f %% ", mean_average_precision * 100, best_map * 100);
         }
 
@@ -261,28 +262,61 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             else fprintf(stderr, "\n Tensor Cores are used.");
         }
         int current_batch = get_current_batch(net);
-        printf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", current_batch, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
+        fprintf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", current_batch, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
 
-
-        if (strcmp(draw_url, "null")!=0) {
+        if (isnormal(loss) == 1 && isnormal(avg_loss) == 1) {
+            if (strcmp(draw_url, "null")!=0) { // 正常的提交画图
+                // region 提交画图
+                char *json = (char *) malloc(1000);
+                char *record = (char *) malloc(500);
+                strcpy(json, "[");
+                sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s%s\"}", current_batch, loss, project_id, "-loss", project_id, "-loss");
+//            printf("%s,len: %d \n", record, strlen(record));
+                strcat(json, record);
+                strcat(json, ",");
+                sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s%s\"}", current_batch, avg_loss, project_id, "-avg_loss", project_id, "avg_loss");
+//            printf("%s,len: %d \n", record, strlen(record));
+                strcat(json, record);
+                strcat(json, "]");
+                free(record);
+                printf("\n: postdata: %s\n", json);
+                draw(draw_url, json);
+                free(json);
+                // endregion
+            }
+        } else { // 梯度爆炸的处理方法
             // region 提交画图
             char *json = (char *) malloc(1000);
             char *record = (char *) malloc(500);
             strcpy(json, "[");
-            sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s\"}", current_batch, loss, project_id, "-loss", "loss");
+            sprintf(record, "{\"x\":%d,\"y\":999999999.99,\"win_id\":\"%s%s\",\"title\":\"%s%s\"}", current_batch, loss, project_id, "-loss", project_id, "-loss 爆炸");
 //            printf("%s,len: %d \n", record, strlen(record));
             strcat(json, record);
             strcat(json, ",");
-            sprintf(record, "{\"x\":%d,\"y\":%.2f,\"win_id\":\"%s%s\",\"title\":\"%s\"}", current_batch, avg_loss, project_id, "-avg_loss", "avg_loss");
+            sprintf(record, "{\"x\":%d,\"y\":999999999.99,\"win_id\":\"%s%s\",\"title\":\"%s%s\"}", current_batch, avg_loss, project_id, "-avg_loss", project_id, "avg_loss 爆炸");
 //            printf("%s,len: %d \n", record, strlen(record));
             strcat(json, record);
             strcat(json, "]");
             free(record);
-            printf("\n: postdata: %s\n", json);
+            fprintf("\n: postdata: %s\n", json);
             draw(draw_url, json);
             free(json);
-            // endregion
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
+            exit(-1);
         }
+
+
 
         int draw_precision = 0;
         if (calc_map && (i >= next_map_calc || i == net.max_batches)) {
@@ -1297,6 +1331,147 @@ void calc_anchors(char *datacfg, int num_of_clusters, int width, int height, int
     //此处去掉getchar()直接退出
 }
 
+void calc_anchors_with_cfg(char *datacfg, char *cfgfile)
+{
+    list *cfgOptions = read_data_cfg(cfgfile);
+    int width = option_find_int(cfgOptions, "width", 608);
+    int height = option_find_int(cfgOptions, "height", 608);
+    int num_of_clusters = option_find_int(cfgOptions, "num", 9);
+
+    printf("\n num_of_clusters = %d, width = %d, height = %d \n", num_of_clusters, width, height);
+    if (width < 0 || height < 0) {
+        printf("Usage: darknet detector calc_anchors_with_cfg data/voc.data data/yolo-voc.cfg \n");
+        printf("Error: set width and height \n");
+        return;
+    }
+
+    //float pointsdata[] = { 1,1, 2,2, 6,6, 5,5, 10,10 };
+    float* rel_width_height_array = (float*)calloc(1000, sizeof(float));
+
+
+    list *options = read_data_cfg(datacfg);
+    char *train_images = option_find_str(options, "train", "data/train.list");
+    list *plist = get_paths(train_images);
+    int number_of_images = plist->size;
+    char **paths = (char **)list_to_array(plist);
+
+    srand(time(0));
+    int number_of_boxes = 0;
+    printf(" read labels from %d images \n", number_of_images);
+
+    int i, j;
+    for (i = 0; i < number_of_images; ++i) {
+        char *path = paths[i];
+        char labelpath[4096];
+        replace_image_to_label(path, labelpath);
+
+        int num_labels = 0;
+        box_label *truth = read_boxes(labelpath, &num_labels);
+        //printf(" new path: %s \n", labelpath);
+        char buff[1024];
+        for (j = 0; j < num_labels; ++j)
+        {
+            if (truth[j].x > 1 || truth[j].x <= 0 || truth[j].y > 1 || truth[j].y <= 0 ||
+                truth[j].w > 1 || truth[j].w <= 0 || truth[j].h > 1 || truth[j].h <= 0)
+            {
+                printf("\n\nWrong label: %s - j = %d, x = %f, y = %f, width = %f, height = %f \n",
+                       labelpath, j, truth[j].x, truth[j].y, truth[j].w, truth[j].h);
+                sprintf(buff, "echo \"Wrong label: %s - j = %d, x = %f, y = %f, width = %f, height = %f\" >> bad_label.list",
+                        labelpath, j, truth[j].x, truth[j].y, truth[j].w, truth[j].h);
+                system(buff);
+                if (check_mistakes) getchar();
+            }
+            number_of_boxes++;
+            rel_width_height_array = (float*)realloc(rel_width_height_array, 2 * number_of_boxes * sizeof(float));
+            rel_width_height_array[number_of_boxes * 2 - 2] = truth[j].w * width;
+            rel_width_height_array[number_of_boxes * 2 - 1] = truth[j].h * height;
+            printf("\r loaded \t image: %d \t box: %d", i + 1, number_of_boxes);
+        }
+    }
+    printf("\n all loaded. \n");
+    printf("\n calculating k-means++ ...");
+
+    matrix boxes_data;
+    model anchors_data;
+    boxes_data = make_matrix(number_of_boxes, 2);
+
+    printf("\n");
+    for (i = 0; i < number_of_boxes; ++i) {
+        boxes_data.vals[i][0] = rel_width_height_array[i * 2];
+        boxes_data.vals[i][1] = rel_width_height_array[i * 2 + 1];
+        //if (w > 410 || h > 410) printf("i:%d,  w = %f, h = %f \n", i, w, h);
+    }
+
+    // Is used: distance(box, centroid) = 1 - IoU(box, centroid)
+
+    // K-means
+    anchors_data = do_kmeans(boxes_data, num_of_clusters);
+
+    qsort((void*)anchors_data.centers.vals, num_of_clusters, 2 * sizeof(float), (__compar_fn_t)anchors_data_comparator);
+
+    //gen_anchors.py = 1.19, 1.99, 2.79, 4.60, 4.53, 8.92, 8.06, 5.29, 10.32, 10.66
+    //float orig_anch[] = { 1.19, 1.99, 2.79, 4.60, 4.53, 8.92, 8.06, 5.29, 10.32, 10.66 };
+
+    printf("\n");
+    float avg_iou = 0;
+    for (i = 0; i < number_of_boxes; ++i) {
+        float box_w = rel_width_height_array[i * 2]; //points->data.fl[i * 2];
+        float box_h = rel_width_height_array[i * 2 + 1]; //points->data.fl[i * 2 + 1];
+        //int cluster_idx = labels->data.i[i];
+        int cluster_idx = 0;
+        float min_dist = FLT_MAX;
+        float best_iou = 0;
+        for (j = 0; j < num_of_clusters; ++j) {
+            float anchor_w = anchors_data.centers.vals[j][0];   // centers->data.fl[j * 2];
+            float anchor_h = anchors_data.centers.vals[j][1];   // centers->data.fl[j * 2 + 1];
+            float min_w = (box_w < anchor_w) ? box_w : anchor_w;
+            float min_h = (box_h < anchor_h) ? box_h : anchor_h;
+            float box_intersect = min_w*min_h;
+            float box_union = box_w*box_h + anchor_w*anchor_h - box_intersect;
+            float iou = box_intersect / box_union;
+            float distance = 1 - iou;
+            if (distance < min_dist) min_dist = distance, cluster_idx = j, best_iou = iou;
+        }
+
+        float anchor_w = anchors_data.centers.vals[cluster_idx][0]; //centers->data.fl[cluster_idx * 2];
+        float anchor_h = anchors_data.centers.vals[cluster_idx][1]; //centers->data.fl[cluster_idx * 2 + 1];
+        if (best_iou > 1 || best_iou < 0) { // || box_w > width || box_h > height) {
+            printf(" Wrong label: i = %d, box_w = %f, box_h = %f, anchor_w = %f, anchor_h = %f, iou = %f \n",
+                   i, box_w, box_h, anchor_w, anchor_h, best_iou);
+        }
+        else avg_iou += best_iou;
+    }
+    avg_iou = 100 * avg_iou / number_of_boxes;
+    printf("\n avg IoU = %2.2f %% \n", avg_iou);
+
+    char buff[1024];
+    FILE* fw = fopen("anchors.txt", "wb");
+    if (fw) {
+        printf("\nSaving anchors to the file: anchors.txt \n");
+        printf("anchors = ");
+        for (i = 0; i < num_of_clusters; ++i) {
+            float anchor_w = anchors_data.centers.vals[i][0]; //centers->data.fl[i * 2];
+            float anchor_h = anchors_data.centers.vals[i][1]; //centers->data.fl[i * 2 + 1];
+            if (width > 32) sprintf(buff, "%3.0f,%3.0f", anchor_w, anchor_h);
+            else sprintf(buff, "%2.4f,%2.4f", anchor_w, anchor_h);
+            printf("%s", buff);
+            fwrite(buff, sizeof(char), strlen(buff), fw);
+            if (i + 1 < num_of_clusters) {
+                fwrite(", ", sizeof(char), 2, fw);
+                printf(", ");
+            }
+        }
+        printf("\n");
+        fclose(fw);
+    }
+    else {
+        printf(" Error: file anchors.txt can't be open \n");
+    }
+
+    free(rel_width_height_array);
+    //此处去掉getchar()直接退出
+}
+
 
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh,
     float hier_thresh, int dont_show, int ext_output, int save_labels, char *outfile, int letter_box)
@@ -1556,6 +1731,7 @@ void run_detector(int argc, char **argv)
     else if (0 == strcmp(argv[2], "recall")) validate_detector_recall(datacfg, cfg, weights);
     else if (0 == strcmp(argv[2], "map")) validate_detector_map(datacfg, cfg, weights, thresh, iou_thresh, map_points, letter_box, NULL);
     else if (0 == strcmp(argv[2], "calc_anchors")) calc_anchors(datacfg, num_of_clusters, width, height, show);
+    else if (0 == strcmp(argv[2], "calc_anchors_with_cfg")) calc_anchors_with_cfg(datacfg, cfg);
     else if (0 == strcmp(argv[2], "demo")) {
         list *options = read_data_cfg(datacfg);
         int classes = option_find_int(options, "classes", 20);
