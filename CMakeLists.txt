@@ -38,9 +38,9 @@ set(INSTALL_LIB_DIR      "${CMAKE_CURRENT_LIST_DIR}" CACHE PATH "Path where lib 
 set(INSTALL_INCLUDE_DIR  "include/darknet"           CACHE PATH "Path where headers will be installed")
 set(INSTALL_CMAKE_DIR    "share/darknet"             CACHE PATH "Path where cmake configs will be installed")
 
-set(ENABLE_OPENCV "TRUE" CACHE BOOL "Enable OpenCV integration")
+set(ENABLE_OPENCV "FALSE" CACHE BOOL "Enable OpenCV integration")
 set(ENABLE_CUDA "TRUE" CACHE BOOL "Enable CUDA support")
-set(ENABLE_CUDNN "FALSE" CACHE BOOL "Enable CUDNN")
+set(ENABLE_CUDNN "TRUE" CACHE BOOL "Enable CUDNN")
 set(ENABLE_CUDNN_HALF "FALSE" CACHE BOOL "Enable CUDNN Half precision")
 
 if(${CMAKE_VERSION} VERSION_LESS "3.9.0")
