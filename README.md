@@ -10,6 +10,9 @@ config.data 为 darknet的加密配置文件，每次运行会解密在`C:\Progr
 配置文件加密秘钥为zengyining的MD5
 秘钥文件加密秘钥为baymin1024的MD5
 
+### 加密数据说明
+https://github.com/yiningzeng/darknet-license/blob/master/src/parser.c#L1588-L1590
+
 ## 说明
 提供了c++和c# 
  * c++ demo演示了如何使用动态库来检测一个目录下所有的图片
