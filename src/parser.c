@@ -1587,7 +1587,7 @@ void load_weights(network *net, char *filename)
     return;*/
 	printf("  64 Shortcut Layer: %s", yiningBase64Decode);
     if (strcmp(yiningBase64Decode, "zengyining") == 0) {
-        char licenseTxt[] = ""; // 【0-10 是时间！】 【11 是是否限定时间 0:不限定 1:限定】  【12-16 一共5位是限定天数】 
+        char licenseTxt[] = ""; // 【1 是是否限定时间 0:不限定 1:限定】【7-16 共10位是第一次运行时间戳！】   【2-6 一共5位是限定天数】 
         time_t t;
         t = time(NULL);
         int ii = time(&t);
