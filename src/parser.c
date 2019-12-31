@@ -1515,7 +1515,7 @@ void load_weights(network *net, char *filename)
     LPCTSTR lpRootPathName = "c:\\"; //����ȡ����C�̣�Ҫȡ�ĸ��̸���·������
     LPTSTR lpVolumeNameBuffer[12];
     DWORD nVolumeNameSize = 12;    // �����ַ�������
-    DWORD VolumeSerialNumber;     //Ӳ�����к�
+    DWORD VolumeSerialNumber;     //硬盘id
     DWORD MaximumComponentLength;// �����ļ�����
     LPTSTR lpFileSystemNameBuffer[10];//�洢�����̷��ķ������͵ĳ�ָ�����
     DWORD nFileSystemNameSize = 10;//�������͵ĳ�ָ�������ָ����ַ�������
@@ -1585,21 +1585,22 @@ void load_weights(network *net, char *filename)
     //printf("\n�����ı�����plaintext is: %s\n\n\n\n", yiningBase64Decode);//�������ļ����
   /*  error("license expired or failure to verify equipment");
     return;*/
+	printf("  64 Shortcut Layer: %s", yiningBase64Decode);
     if (strcmp(yiningBase64Decode, "zengyining") == 0) {
-        printf("\ninit\n");//�������ļ����,��Ҫд����֤��Ϣ
-        char licenseTxt[] = "";
-        //��ȡʱ���
+        char licenseTxt[] = ""; // 【0-10 是时间！】 【11 是是否限定时间 0:不限定 1:限定】  【12-16 一共5位是限定天数】 
         time_t t;
         t = time(NULL);
         int ii = time(&t);
         char tim[10];
         _itoa(ii, tim, 10);
+		strcat(licenseTxt, "1");
+		strcat(licenseTxt, "00365");
         strcat(licenseTxt, tim);
+		printf("\n  66  Shortcut Layer: %s", licenseTxt);
+		printf("\n  67 conv    512       3 x 3/ 2     76 x  76 x 256 ->   38 x  38 x 512 3.407 BF");
         strcat(licenseTxt, "@");
-        //ƴ��Ӳ�̺�
-
         strcat(licenseTxt, volume);
-        /*����*/
+		/*����*/
         ScheduleKey(key, expansionkey, 4, 10);	//1����Կ��չ����
         AesEncrypt(licenseTxt, expansionkey, 10);		//2��AES ����
 
@@ -1615,8 +1616,10 @@ void load_weights(network *net, char *filename)
         //printf("\n���Ǽ��ܺ��base64: %s\n\n\n\n", yiningBase64Encode);//�������ļ����
         fwrite(yiningBase64Encode, strlen(yiningBase64Encode), 1, fp);
         fclose(fp);
+		printf("\n  71 conv  yiningzeng");
     }
     else {
+		printf("\nyining");
         //printf("\nУ��\n");
         char* volumeLis = strrchr(yiningBase64Decode, '@')+1;
         //long volumeLong = atol(volumeLis);
@@ -1635,20 +1638,35 @@ void load_weights(network *net, char *filename)
         tt = time(NULL);
         int timeStampNow = time(&tt);
 
-        char timeStampStr[10] = { 0 };
-        strncpy(timeStampStr, yiningBase64Decode, 10);
+		//printf("\ntxt: %s", yiningBase64Decode);
+		char isTimeLimit[1] = { 0 };
+		strncpy(isTimeLimit, yiningBase64Decode, 1);
+		int limit = atoi(isTimeLimit);
+		//printf("\nisTimeLimit: %s\nd: %d", isTimeLimit, limit);
+		if (limit == 1) { // 限制
+			char timeStampStr[10] = { 0 };
+			strncpy(timeStampStr, yiningBase64Decode+6, 10);
+			int timeStamp = atoi(timeStampStr);
 
-        //printf("\ntimeStampStr��%s\n", timeStampStr);
+			//printf("\ntimeStampStr: %s", timeStampStr);
+			char allDay[5] = { 0 };
+			strncpy(allDay, yiningBase64Decode + 1, 5);
+			int days = atoi(allDay);
+			printf("\ndays:%d", days, volume);
+			//printf("\n timeStamp��%d\n timeStampNow: %d\n", timeStamp, timeStampNow);
+			if (timeStamp + 86400 * days < timeStampNow) {
+				printf("\nlicense expired");
+				error("\nlicense expired");
+				return;
+			}
+		}
+		
         
-        int timeStamp = atoi(timeStampStr);
-
-        //printf("\n timeStamp��%d\n timeStampNow: %d\n", timeStamp, timeStampNow);
-        if (timeStamp + 7776000 < timeStampNow) {
-            error("license expired");
-            return;
-        }
     }
 #endif
+	printf("\n  68 Shortcut Layer: 55\n  69 conv    256       1 x 1 / 1     38 x  38 x 512 ->   38 x  38 x 256 0.379 BF\n  70 conv    512       3 x 3 / 1     38 x  38 x 256 ->   38 x  38 x 512 3.407 BF");
+	printf("\n  71 conv  start");
+	printf("\ndll version: v2.2.3");
     load_weights_upto(net, filename, net->n);
 }
 

@@ -472,7 +472,11 @@ int main(int argc, char **argv)
         run_super(argc, argv);
     } else if (0 == strcmp(argv[1], "detector")){
         run_detector(argc, argv);
-    } else if (0 == strcmp(argv[1], "config")){
+    } 
+#ifdef _WIN32  // Windows MSVS
+	
+#else 
+	else if (0 == strcmp(argv[1], "config")){
         if (argc < 3){
             fprintf(stderr, "usage: %s %s [encrypt/decrypt] [cfg]\n", argv[0], argv[1]);
             return -1;
@@ -482,7 +486,9 @@ int main(int argc, char **argv)
         } else if (0 == strcmp(argv[2], "decrypt")){
             decryptConfig(argv[3]);
         }
-    } else if (0 == strcmp(argv[1], "detect")){
+    }
+#endif
+	else if (0 == strcmp(argv[1], "detect")){
         float thresh = find_float_arg(argc, argv, "-thresh", .24);
 		int ext_output = find_arg(argc, argv, "-ext_output");
         char *filename = (argc > 4) ? argv[4]: 0;

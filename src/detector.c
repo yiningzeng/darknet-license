@@ -263,7 +263,9 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
         }
         int current_batch = get_current_batch(net);
         fprintf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", current_batch, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
-
+#ifdef WIN32  // Windows MSVS
+		fprintf("\n %d: %f, %f avg loss, %f rate, %lf seconds, %d images\n", current_batch, loss, avg_loss, get_current_rate(net), (what_time_is_it_now() - time), i*imgs);
+#else 
         if (isnormal(loss) == 1 && isnormal(avg_loss) == 1) {
             if (strcmp(draw_url, "null")!=0) { // 正常的提交画图
                 // region 提交画图
@@ -315,7 +317,7 @@ void train_detector(char *datacfg, char *cfgfile, char *weightfile, int *gpus, i
             fprintf("\n break %d: %f, %f avg loss\n", current_batch, loss, avg_loss);
             exit(-1);
         }
-
+#endif
 
 
         int draw_precision = 0;
